@@ -37,19 +37,15 @@
 
 ## 快速开始
 
-```bat
-pip install pillow
-python code.py
-```
+1. 打开 [Releases](https://github.com/giantstriker/Controller-Bagbuddy/releases)，下载最新的 `Controller-Bagbuddy-*-win64.zip`，解压出 `Controller-Bagbuddy.exe`。
+2. 运行 EXE，通过 UAC（全局热键需要管理员权限）。
+3. **打开截图** 或 **粘贴截图**。尽量截整屏，和游戏分辨率一致。
+4. 在画布空白处拖出一个大区，填 **列**、**行**。
+5. 底栏把分辨率设成游戏分辨率，或点 **用截图尺寸**。
+6. 底栏点 **激活** 旁边的按键块，按下一个不跟游戏冲突的键。方向键默认已是 ←→↑↓。
+7. 点底栏 **激活**（或按刚绑的键），再用方向键把鼠标滑到格子上。
 
-1. 通过 UAC。
-2. **打开截图** 或 **粘贴截图**。尽量截整屏，和游戏分辨率一致。
-3. 在画布空白处拖出一个大区，填 **列**、**行**。
-4. 底栏把分辨率设成游戏分辨率，或点 **用截图尺寸**。
-5. 底栏点 **激活** 旁边的按键块，按下一个不跟游戏冲突的键。方向键默认已是 ←→↑↓。
-6. 点底栏 **激活**（或按刚绑的键），再用方向键把鼠标滑到格子上。
-
-仓库里没有现成的 EXE，需要的话按下面「打包」自己生成。
+要从源码跑或自己打包，见文末「源码运行」和「打包」。
 
 ## 使用说明
 
@@ -266,6 +262,15 @@ python code.py
 
 旧字段 `region_left` / `region_right` / `region_up` / `region_down` 读进来后会被清掉，不再参与移鼠。
 
+## 源码运行
+
+```bat
+pip install pillow
+python code.py
+```
+
+同样需要通过 UAC。日常使用优先下 Releases 里的 EXE。
+
 ## 打包
 
 在源码目录执行：
@@ -292,8 +297,7 @@ EXE、`*_更新.exe`、`build_tmp/`、`*.spec` 都在 `.gitignore` 里，不要�
 | `configs/2.json` | 样例：单个大区 |
 | `active_config.json` | 当前配置名 |
 | `ui_lang.json` | 界面语言（`zh` / `en`），默认中文；生成在 EXE / `code.py` 同级目录 |
-| `README.md` | 英文说明，GitHub 首页默认显示这份 |
-| `README.md` | 项目说明（中文正文；页内可展开 English） |
+| `README.md` | 项目说明（中文正文；English 在同页折叠展开） |
 | `.gitignore` | 缓存、虚拟环境、打包产物 |
 
 ## 常见问题
@@ -370,19 +374,15 @@ On other platforms the editor still opens, but hotkeys and cursor motion do not.
 
 ## Quick start
 
-```bat
-pip install pillow
-python code.py
-```
+1. Open [Releases](https://github.com/giantstriker/Controller-Bagbuddy/releases), download the latest `Controller-Bagbuddy-*-win64.zip`, and extract `Controller-Bagbuddy.exe`.
+2. Run the EXE and accept UAC (admin is required for global hotkeys).
+3. **Open screenshot** or **Paste screenshot**. A full-screen capture at the game’s resolution is the one to use.
+4. Drag a region on the empty canvas and set **columns** and **rows**.
+5. Set the bottom-bar resolution to the game, or click **Use screenshot size**.
+6. Click the key chip next to **Activate** and press a key that does not fight the game. The arrow keys are already bound to cell steps.
+7. Press **Activate**, then use the arrow hotkeys to glide onto cells.
 
-1. Accept the UAC prompt.
-2. **Open screenshot** or **Paste screenshot**. A full-screen capture at the game’s resolution is the one to use.
-3. Drag a region on the empty canvas and set **columns** and **rows**.
-4. Set the bottom-bar resolution to the game, or click **Use screenshot size**.
-5. Click the key chip next to **Activate** and press a key that does not fight the game. The arrow keys are already bound to cell steps.
-6. Press **Activate**, then use the arrow hotkeys to glide onto cells.
-
-This repo does not ship an EXE. Build one with the command in [Build](#build) if you want a single file.
+To run from source or build your own EXE, see **Run from source** and **Build** below.
 
 ## Usage
 
@@ -599,8 +599,16 @@ Shape:
 
 Legacy `region_left` / `region_right` / `region_up` / `region_down` are cleared on load and no longer move the cursor.
 
-## Build
+## Run from source
 
+```bat
+pip install pillow
+python code.py
+```
+
+UAC is still required. Prefer the EXE from Releases for normal use.
+
+## Build
 From the source directory:
 
 ```bat
@@ -626,7 +634,7 @@ The EXE, `*_更新.exe`, `build_tmp/`, and `*.spec` are gitignored. Leave them o
 | `active_config.json` | Active profile name |
 | `ui_lang.json` | UI language (`zh` / `en`); default Chinese. Created next to the EXE / `code.py` |
 | `README.md` | This file. GitHub renders it on the repository home |
-| `README.md` | Documentation (Chinese first; English expandable on the same page) |
+| `README.md` | Docs (Chinese first; English expandable on the same page) |
 | `.gitignore` | Cache, virtualenvs, and build output |
 
 ## FAQ
