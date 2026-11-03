@@ -1,0 +1,50 @@
+{
+  "layouts": [
+    {
+      "name": "背包",
+      "switch_key": "",
+      "res_w": "1280",
+      "res_h": "960",
+      "regions": [
+        {
+          "name": "区域1",
+          "rx1": 40.0,
+          "ry1": 40.0,
+          "rx2": 440.0,
+          "ry2": 280.0,
+          "cols": 10,
+          "rows": 5,
+          "cell_w": "40",
+          "cell_h": "48",
+          "origin": "center",
+          "locked": false,
+          "link_left": null,
+          "link_right": null,
+          "link_up": null,
+          "link_down": null
+        }
+      ],
+      "feature_points": []
+    }
+  ],
+  "hotkeys": {
+    "cell_left": "left",
+    "cell_right": "right",
+    "cell_up": "up",
+    "cell_down": "down",
+    "prev_region": "prior",
+    "next_region": "next",
+    "toggle_mouse": "",
+    "prev_layout": "",
+    "next_layout": "",
+    "cell_home": "",
+    "cell_again": "",
+    "toggle_overlay": "",
+    "toggle_global_lock": "",
+    "region_left": "",
+    "region_right": "",
+    "region_up": "",
+    "region_down": ""
+  },
+  "cross_region": false
+}

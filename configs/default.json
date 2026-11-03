@@ -1,0 +1,177 @@
+{
+  "layouts": [
+    {
+      "name": "背包",
+      "switch_key": "d",
+      "res_w": "1920",
+      "res_h": "1080",
+      "regions": [
+        {
+          "name": "1",
+          "rx1": 204.0,
+          "ry1": 432.0,
+          "rx2": 470.092485549133,
+          "ry2": 705.8323699421966,
+          "cols": 4,
+          "rows": 4,
+          "cell_w": "66.523",
+          "cell_h": "68.458",
+          "origin": "center",
+          "locked": false,
+          "link_left": null,
+          "link_right": 1,
+          "link_up": 2,
+          "link_down": null
+        },
+        {
+          "name": "1",
+          "rx1": 636.0,
+          "ry1": 400.0,
+          "rx2": 960.2658959537573,
+          "ry2": 731.6820809248555,
+          "cols": 4,
+          "rows": 4,
+          "cell_w": "81.066",
+          "cell_h": "82.921",
+          "origin": "center",
+          "locked": false,
+          "link_left": 0,
+          "link_right": null,
+          "link_up": null,
+          "link_down": null
+        },
+        {
+          "name": "1",
+          "rx1": 203.0,
+          "ry1": 61.0,
+          "rx2": 452.5953757225434,
+          "ry2": 303.5895953757224,
+          "cols": 4,
+          "rows": 4,
+          "cell_w": "62.399",
+          "cell_h": "60.647",
+          "origin": "center",
+          "locked": false,
+          "link_left": null,
+          "link_right": null,
+          "link_up": null,
+          "link_down": 0
+        }
+      ],
+      "feature_points": [
+        {
+          "x": 1045.39,
+          "y": 176.79,
+          "r": 36,
+          "g": 48,
+          "b": 60,
+          "tol": 15
+        },
+        {
+          "x": 567.93,
+          "y": 145.52,
+          "r": 52,
+          "g": 70,
+          "b": 87,
+          "tol": 15
+        },
+        {
+          "x": 1099.51,
+          "y": 489.49,
+          "r": 55,
+          "g": 80,
+          "b": 101,
+          "tol": 15
+        }
+      ]
+    },
+    {
+      "name": "界面2",
+      "switch_key": "2",
+      "res_w": "1920",
+      "res_h": "1080",
+      "regions": [
+        {
+          "name": "区域1",
+          "rx1": 399.5991091314031,
+          "ry1": 154.2538975501114,
+          "rx2": 799.5991091314031,
+          "ry2": 394.2538975501114,
+          "cols": 10,
+          "rows": 5,
+          "cell_w": "40",
+          "cell_h": "48",
+          "origin": "center",
+          "locked": false,
+          "link_left": null,
+          "link_right": null,
+          "link_up": null,
+          "link_down": null
+        },
+        {
+          "name": "区域2",
+          "rx1": 411.55902004454344,
+          "ry1": 553.4743875278397,
+          "rx2": 811.5590200445434,
+          "ry2": 793.4743875278397,
+          "cols": 10,
+          "rows": 5,
+          "cell_w": "40",
+          "cell_h": "48",
+          "origin": "center",
+          "locked": false,
+          "link_left": null,
+          "link_right": null,
+          "link_up": null,
+          "link_down": null
+        }
+      ],
+      "feature_points": [
+        {
+          "x": 884.23,
+          "y": 333.14,
+          "r": 248,
+          "g": 248,
+          "b": 248,
+          "tol": 15
+        },
+        {
+          "x": 889.04,
+          "y": 493.1,
+          "r": 248,
+          "g": 248,
+          "b": 248,
+          "tol": 15
+        },
+        {
+          "x": 883.03,
+          "y": 568.86,
+          "r": 247,
+          "g": 247,
+          "b": 247,
+          "tol": 15
+        }
+      ]
+    }
+  ],
+  "hotkeys": {
+    "cell_left": "left",
+    "cell_right": "right",
+    "cell_up": "up",
+    "cell_down": "down",
+    "prev_region": "",
+    "next_region": "",
+    "toggle_mouse": "f10",
+    "prev_layout": "home",
+    "next_layout": "end",
+    "cell_home": "",
+    "cell_again": "",
+    "toggle_overlay": "",
+    "toggle_global_lock": "",
+    "region_left": "",
+    "region_right": "",
+    "region_up": "",
+    "region_down": ""
+  },
+  "cross_region": true
+}

@@ -1,0 +1,10 @@
+﻿__pycache__/
+*.pyc
+build_tmp/
+*.spec
+.venv/
+venv/
+Controller Bagbuddy.exe
+*_更新.exe
+.DS_Store
+Thumbs.db
