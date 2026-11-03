@@ -196,6 +196,409 @@ CONFIGS_DIR = os.path.join(APP_DIR, "configs")
 ACTIVE_CONFIG_FILE = os.path.join(APP_DIR, "active_config.json")
 DEFAULT_CONFIG_NAME = "default"
 
+# ========== UI 语言（中/英） ==========
+UI_LANG_FILE = os.path.join(APP_DIR, "ui_lang.json")
+_UI_LANG = "zh"  # 运行时当前语言；默认中文
+
+
+def load_ui_lang() -> str:
+    """读取 ui_lang.json；非法或缺省时返回 zh。"""
+    global _UI_LANG
+    lang = "zh"
+    try:
+        if os.path.isfile(UI_LANG_FILE):
+            with open(UI_LANG_FILE, "r", encoding="utf-8") as f:
+                data = json.load(f)
+            v = str((data or {}).get("lang", "zh")).strip().lower()
+            if v in ("zh", "en"):
+                lang = v
+    except Exception:
+        lang = "zh"
+    _UI_LANG = lang
+    return lang
+
+
+def save_ui_lang(lang: str) -> None:
+    global _UI_LANG
+    lang = "en" if str(lang).lower() == "en" else "zh"
+    _UI_LANG = lang
+    try:
+        with open(UI_LANG_FILE, "w", encoding="utf-8") as f:
+            json.dump({"lang": lang}, f, ensure_ascii=False, indent=2)
+    except Exception:
+        pass
+
+
+def t(key: str, **kwargs) -> str:
+    """按当前语言取文案；缺失时回退到中文，再回退到 key 本身。"""
+    pack = UI_TEXT.get(_UI_LANG) or UI_TEXT.get("zh") or {}
+    s = pack.get(key)
+    if s is None:
+        s = (UI_TEXT.get("zh") or {}).get(key, key)
+    if kwargs:
+        try:
+            return s.format(**kwargs)
+        except Exception:
+            return s
+    return s
+
+
+UI_TEXT = {
+    "zh": {
+        "open_screenshot": "打开截图",
+        "paste_screenshot": "粘贴截图",
+        "global_lock": "全局锁定",
+        "overlay_off": "屏幕辅助线：关闭",
+        "overlay_on": "屏幕辅助线：开启",
+        "layouts_title": "背包界面 / 层级",
+        "regions_title": "当前界面的大区",
+        "add_layout": "新增界面",
+        "add_region": "新增大区",
+        "copy": "复制",
+        "delete": "删除",
+        "layout_name": "界面名",
+        "region_name": "大区名",
+        "cols": "列",
+        "rows": "行",
+        "cell_wh_auto": "格子宽高（按区域自动计算）",
+        "width": "宽",
+        "height": "高",
+        "cell_center": "格子中心",
+        "topleft": "左上角",
+        "resize_from_cells": "按格子尺寸重算大区",
+        "cross_region": "跨区域移动（开：有链接则跨区，无链接卡边缘；关：环绕）",
+        "save": "保存",
+        "copy_json": "复制JSON",
+        "export": "导出",
+        "config_title": "配置文件（多游戏）",
+        "current": "当前",
+        "switch_config": "切换配置",
+        "new": "新建",
+        "save_as": "另存为",
+        "activate": "激活",
+        "draw_border": "同时绘制\n界面边框",
+        "resolution": "分辨率",
+        "use_image_res": "用截图尺寸",
+        "hotkeys_title": "快捷键（点键名后按键，Esc 或右键取消，Backspace 清空）",
+        "lang_btn": "中文 / English",
+        "color_btn": "色",
+        "lock": "锁定",
+        "unset": "未设",
+        "mouse_off": "移鼠：关闭",
+        "mouse_on": "移鼠：开启",
+        "active_off": "●  未激活",
+        "active_on": "●  已激活",
+        "status_load": "请加载一张背包截图",
+        "hk_toggle_mouse": "激活",
+        "hk_toggle_overlay": "辅助线",
+        "hk_toggle_global_lock": "全局锁",
+        "hk_prev_region": "上个区域",
+        "hk_next_region": "下个区域",
+        "hk_cell_left": "朝左一格",
+        "hk_cell_right": "朝右一格",
+        "hk_cell_up": "朝上一格",
+        "hk_cell_down": "朝下一格",
+        "hk_prev_layout": "上一界面",
+        "hk_next_layout": "下一界面",
+        "hk_cell_home": "回到当前区第1格",
+        "hk_cell_again": "再移到当前格",
+        "hk_full_toggle_mouse": "开/关移鼠",
+        "hk_full_toggle_overlay": "开/关屏幕辅助线",
+        "hk_full_toggle_global_lock": "全局锁定",
+        "tip": "提示",
+        "confirm": "确认",
+        "cancel": "取消",
+        "ok": "确定",
+        "error": "错误",
+        "press_key": "按键…",
+        "fp_title": "特征点取色 — {name}",
+        "fp_tip": "用法：先打开/粘贴背包截图，点「开始点选」后在右侧编辑画布上点击特征位置。\n每个点记录图像坐标与 RGB。运行时按该界面分辨率映射到屏幕采样；\n全部特征点颜色均在容差内时，自动切换到本界面。未设置则功能关闭。",
+        "fp_tol": "颜色容差 ±",
+        "fp_tol_hint": "（建议 12～18）",
+        "fp_start": "开始点选",
+        "fp_stop": "停止点选",
+        "fp_del_sel": "删除选中",
+        "fp_clear": "清空全部",
+        "fp_save": "保存并开启",
+        "fp_no_img": "当前无截图，请先「打开截图」或「粘贴截图」再点选。",
+        "fp_need_img": "请先打开或粘贴一张截图，再点选特征点。",
+        "fp_clear_confirm": "清空本界面全部特征点？",
+        "fp_picking": "点选中：请在右侧编辑画布上点击特征位置（Esc 或再点按钮停止）。",
+        "fp_saved": "「{name}」已设 {n} 个特征点，自动切界面已开启",
+        "fp_cleared": "「{name}」特征点已清空，自动切界面关闭",
+        "hk_dlg_title": "快捷键设置",
+        "hk_dlg_tip": "点击「更改」后按键。界面切换键按层级单独设置。",
+        "hk_dlg_change": "更改",
+        "hk_dlg_reset": "恢复默认",
+        "hk_dlg_section_cell": "格子移鼠（开启移鼠后全局）",
+        "hk_dlg_section_layout": "各背包界面专属切换键",
+        "hk_dlg_switch_to": "切换到「{name}」",
+        "hk_dlg_unset": "未设置",
+        "switcher_title": "界面切换",
+        "switcher_tip": "点击或用专属快捷键切换",
+        "lock_need_global_off_chk": "全局锁定中，请先取消勾选上方全局锁定",
+        "lock_need_global_off": "全局锁定中，请先解除全局锁定",
+        "lock_on": "全局锁定",
+        "lock_off": "全局解锁，可调区域",
+        "overlay_status_on": "屏幕辅助线已开启",
+        "overlay_status_off": "屏幕辅助线已关闭",
+        "mouse_status_on": "移鼠已开启",
+        "mouse_status_off": "移鼠已关闭",
+        "closed": "已关闭",
+        "cross_on": "跨区域移动：开",
+        "cross_off": "跨区域移动：关",
+        "capture_hint": "正在设置「{name}」：请按键    Esc / 右键 取消",
+        "capture_status": "请按要绑定的键（Esc 或右键取消，Backspace 清空）",
+        "need_screenshot": "请先加载截图。",
+        "name_empty": "名称不能为空。",
+        "region_locked_resize": "区域已锁定，解锁后才能调整大小",
+        "region_locked_resize_dot": "区域已锁定，解锁后才能调整大小。",
+        "need_cell_wh": "请先填写当前大区的格子宽和高。",
+        "open_fail": "无法读取图片：\n{e}",
+        "open_title": "打开截图",
+        "clip_empty": "剪贴板里没有图片。",
+        "clip_fail": "无法读取剪贴板图片。",
+        "clip_title": "剪贴板",
+        "from_clipboard": "来自剪贴板",
+        "res_set": "分辨率已设为 {w}×{h}",
+        "confirm_box": "确认框格",
+        "confirm_box_msg": "确认使用拖拽生成的框格吗？\n大小约 {w:.0f}×{h:.0f}",
+        "box_too_small": "框格太小，已取消",
+        "box_cancel": "已取消本次拖拽框格",
+        "box_ok": "已确认框格 {w:.0f}×{h:.0f}",
+        "need_two_regions": "至少需要两个区域才能链接。",
+        "pick_target": "请选择目标区域。",
+        "link_label": "将「{name}」链接到：",
+        "link_cleared": "已清除「{name}」的链接",
+        "keep_one_layout": "至少保留一个界面。",
+        "keep_one_region": "每个界面至少保留一个大区。",
+        "renamed": "已重命名为「{name}」",
+        "fp_none": "「{name}」尚未设置特征点",
+        "fp_cleared_status": "已清空「{name}」特征点，自动切界面已关闭",
+        "layout_cur": "当前界面：{name}  键 {key}",
+        "activated_border": "已激活「{name}」，并绘制边框",
+        "activated": "已激活「{name}」",
+        "mouse_win_only": "全局移鼠热键仅在 Windows 下可用。",
+        "fp_match": "特征点匹配 → 已切换到「{name}」",
+        "saved_config": "已保存配置 {name}.json",
+        "cfg_missing": "配置「{name}」不存在。",
+        "cfg_switch_save": "切换前是否保存当前配置「{name}」？\n选「否」则丢弃未保存改动。",
+        "cfg_switch_title": "切换配置",
+        "cfg_file_missing": "找不到配置文件 {name}.json",
+        "cfg_read_fail": "读取配置失败：{e}",
+        "cfg_switched": "已切换到配置 {name}",
+        "cfg_exists": "配置「{name}」已存在。",
+        "cfg_new_save": "是否先保存当前配置「{name}」？",
+        "cfg_new_title": "新建配置",
+        "cfg_create_fail": "创建失败：{e}",
+        "cfg_overwrite": "配置「{name}」已存在，覆盖？",
+        "cfg_save_as_title": "另存为",
+        "cfg_save_fail": "保存失败：{e}",
+        "cfg_saved_as": "已另存为 {name}.json",
+        "cfg_del_last": "不能删除最后一个配置。",
+        "cfg_del_confirm": "确定删除配置「{name}」？此操作不可恢复。",
+        "cfg_del_title": "删除配置",
+        "cfg_del_fail": "删除失败：{e}",
+        "copied": "已复制",
+        "saved_file": "已保存 {name}",
+        "admin_title": "需要管理员权限",
+        "admin_msg": "未能获取管理员权限，程序无法启动。",
+        "lang_switched": "界面语言：中文",
+        "fp_stopped": "已停止点选。",
+        "hk_listening": "正在监听（Esc 取消）",
+        "hk_unsupported": "不支持的键：{key}",
+        "hk_group_cell": "格子移鼠（开启移鼠后全局）",
+        "hk_group_region": "切换区域（当前界面的大区）",
+        "hk_group_other": "界面循环 / 其它",
+        "rename_layout": "重命名界面",
+        "rename_prompt": "新名称：",
+        "menu_rename_layout": "重命名界面",
+        "menu_rename_region": "重命名区域",
+        "menu_link_region": "链接区域…",
+        "menu_clear_links": "清除本区链接",
+        "menu_del_region": "删除区域",
+        "rename_region": "重命名区域",
+        "cfg_new_name_prompt": "新配置名称：",
+    },
+    "en": {
+        "open_screenshot": "Open screenshot",
+        "paste_screenshot": "Paste",
+        "global_lock": "Global lock",
+        "overlay_off": "Screen overlay: off",
+        "overlay_on": "Screen overlay: on",
+        "layouts_title": "Layouts",
+        "regions_title": "Regions",
+        "add_layout": "Add layout",
+        "add_region": "Add region",
+        "copy": "Copy",
+        "delete": "Delete",
+        "layout_name": "Layout name",
+        "region_name": "Region",
+        "cols": "Cols",
+        "rows": "Rows",
+        "cell_wh_auto": "Cell size (auto from region)",
+        "width": "W",
+        "height": "H",
+        "cell_center": "Cell center",
+        "topleft": "Top-left",
+        "resize_from_cells": "Rebuild region from cell size",
+        "cross_region": "Cross-region move (on: jump via links / stick at edge; off: wrap)",
+        "save": "Save",
+        "copy_json": "Copy JSON",
+        "export": "Export",
+        "config_title": "Config (multi-game)",
+        "current": "Current",
+        "switch_config": "Switch",
+        "new": "New",
+        "save_as": "Save as",
+        "activate": "Activate",
+        "draw_border": "Draw layout\nborder too",
+        "resolution": "Resolution",
+        "use_image_res": "Use screenshot size",
+        "hotkeys_title": "Hotkeys (click chip → press key; Esc / right-click cancel; Backspace clear)",
+        "lang_btn": "中文 / English",
+        "color_btn": "Color",
+        "lock": "Lock",
+        "unset": "unset",
+        "mouse_off": "Mouse: off",
+        "mouse_on": "Mouse: on",
+        "active_off": "●  Inactive",
+        "active_on": "●  Active",
+        "status_load": "Load a backpack screenshot",
+        "hk_toggle_mouse": "Activate",
+        "hk_toggle_overlay": "Overlay",
+        "hk_toggle_global_lock": "Global lock",
+        "hk_prev_region": "Prev region",
+        "hk_next_region": "Next region",
+        "hk_cell_left": "Left cell",
+        "hk_cell_right": "Right cell",
+        "hk_cell_up": "Up cell",
+        "hk_cell_down": "Down cell",
+        "hk_prev_layout": "Prev layout",
+        "hk_next_layout": "Next layout",
+        "hk_cell_home": "First cell in region",
+        "hk_cell_again": "Move to current cell again",
+        "hk_full_toggle_mouse": "Toggle mouse",
+        "hk_full_toggle_overlay": "Toggle overlay",
+        "hk_full_toggle_global_lock": "Global lock",
+        "tip": "Notice",
+        "confirm": "Confirm",
+        "cancel": "Cancel",
+        "ok": "OK",
+        "error": "Error",
+        "press_key": "Key…",
+        "fp_title": "Feature colors — {name}",
+        "fp_tip": "Load/paste a backpack screenshot, click Start picking, then click feature pixels on the canvas.\nEach point stores image coords and RGB. At runtime they map to screen samples by layout resolution;\nwhen all points match within tolerance, that layout is selected. Empty = disabled.",
+        "fp_tol": "Color tolerance ±",
+        "fp_tol_hint": "(suggest 12–18)",
+        "fp_start": "Start picking",
+        "fp_stop": "Stop picking",
+        "fp_del_sel": "Delete selected",
+        "fp_clear": "Clear all",
+        "fp_save": "Save & enable",
+        "fp_no_img": "No screenshot yet. Open or paste one before picking.",
+        "fp_need_img": "Open or paste a screenshot before picking feature points.",
+        "fp_clear_confirm": "Clear all feature points on this layout?",
+        "fp_picking": "Picking: click feature pixels on the canvas (Esc or button to stop).",
+        "fp_saved": "「{name}」: {n} feature point(s); auto layout on",
+        "fp_cleared": "「{name}」: feature points cleared; auto layout off",
+        "hk_dlg_title": "Hotkey settings",
+        "hk_dlg_tip": "Click Change, then press a key. Layout switch keys are per layout.",
+        "hk_dlg_change": "Change",
+        "hk_dlg_reset": "Defaults",
+        "hk_dlg_section_cell": "Cell mouse (global while mouse mode on)",
+        "hk_dlg_section_layout": "Per-layout switch keys",
+        "hk_dlg_switch_to": "Switch to 「{name}」",
+        "hk_dlg_unset": "unset",
+        "switcher_title": "Switch layout",
+        "switcher_tip": "Click or use a dedicated hotkey",
+        "lock_need_global_off_chk": "Global lock is on — uncheck Global lock first",
+        "lock_need_global_off": "Global lock is on — turn it off first",
+        "lock_on": "Global lock on",
+        "lock_off": "Unlocked — regions editable",
+        "overlay_status_on": "Screen overlay on",
+        "overlay_status_off": "Screen overlay off",
+        "mouse_status_on": "Mouse mode on",
+        "mouse_status_off": "Mouse mode off",
+        "closed": "Closed",
+        "cross_on": "Cross-region move: on",
+        "cross_off": "Cross-region move: off",
+        "capture_hint": "Binding 「{name}」: press a key    Esc / right-click cancel",
+        "capture_status": "Press a key to bind (Esc / right-click cancel, Backspace clear)",
+        "need_screenshot": "Load a screenshot first.",
+        "name_empty": "Name cannot be empty.",
+        "region_locked_resize": "Region locked — unlock to resize",
+        "region_locked_resize_dot": "Region locked — unlock to resize.",
+        "need_cell_wh": "Enter cell width and height for this region first.",
+        "open_fail": "Cannot read image:\n{e}",
+        "open_title": "Open screenshot",
+        "clip_empty": "Clipboard has no image.",
+        "clip_fail": "Cannot read clipboard image.",
+        "clip_title": "Clipboard",
+        "from_clipboard": "From clipboard",
+        "res_set": "Resolution set to {w}×{h}",
+        "confirm_box": "Confirm region",
+        "confirm_box_msg": "Use the dragged region?\nSize about {w:.0f}×{h:.0f}",
+        "box_too_small": "Region too small — cancelled",
+        "box_cancel": "Drag cancelled",
+        "box_ok": "Region confirmed {w:.0f}×{h:.0f}",
+        "need_two_regions": "Need at least two regions to link.",
+        "pick_target": "Pick a target region.",
+        "link_label": "Link 「{name}」 to:",
+        "link_cleared": "Cleared links for 「{name}」",
+        "keep_one_layout": "Keep at least one layout.",
+        "keep_one_region": "Keep at least one region per layout.",
+        "renamed": "Renamed to 「{name}」",
+        "fp_none": "「{name}」 has no feature points yet",
+        "fp_cleared_status": "Cleared feature points for 「{name}」; auto layout off",
+        "layout_cur": "Layout: {name}  key {key}",
+        "activated_border": "Activated 「{name}」 with border",
+        "activated": "Activated 「{name}」",
+        "mouse_win_only": "Global mouse hotkeys require Windows.",
+        "fp_match": "Feature match → switched to 「{name}」",
+        "saved_config": "Saved config {name}.json",
+        "cfg_missing": "Config 「{name}」 not found.",
+        "cfg_switch_save": "Save current config 「{name}」 before switching?\nNo discards unsaved changes.",
+        "cfg_switch_title": "Switch config",
+        "cfg_file_missing": "Config file {name}.json not found",
+        "cfg_read_fail": "Failed to read config: {e}",
+        "cfg_switched": "Switched to config {name}",
+        "cfg_exists": "Config 「{name}」 already exists.",
+        "cfg_new_save": "Save current config 「{name}」 first?",
+        "cfg_new_title": "New config",
+        "cfg_create_fail": "Create failed: {e}",
+        "cfg_overwrite": "Config 「{name}」 exists — overwrite?",
+        "cfg_save_as_title": "Save as",
+        "cfg_save_fail": "Save failed: {e}",
+        "cfg_saved_as": "Saved as {name}.json",
+        "cfg_del_last": "Cannot delete the last config.",
+        "cfg_del_confirm": "Delete config 「{name}」? This cannot be undone.",
+        "cfg_del_title": "Delete config",
+        "cfg_del_fail": "Delete failed: {e}",
+        "copied": "Copied",
+        "saved_file": "Saved {name}",
+        "admin_title": "Administrator required",
+        "admin_msg": "Could not elevate to administrator. The app cannot start.",
+        "lang_switched": "UI language: English",
+        "fp_stopped": "Picking stopped.",
+        "hk_listening": "Listening (Esc cancel)",
+        "hk_unsupported": "Unsupported key: {key}",
+        "hk_group_cell": "Cell mouse (global while mouse mode on)",
+        "hk_group_region": "Switch region (current layout)",
+        "hk_group_other": "Layout cycle / other",
+        "rename_layout": "Rename layout",
+        "rename_prompt": "New name:",
+        "menu_rename_layout": "Rename layout",
+        "menu_rename_region": "Rename region",
+        "menu_link_region": "Link region…",
+        "menu_clear_links": "Clear region links",
+        "menu_del_region": "Delete region",
+        "rename_region": "Rename region",
+        "cfg_new_name_prompt": "New config name:",
+    },
+}
+
+
 ICON_FILE = os.path.join(APP_DIR, "backpack_tool.ico")
 ICON_PNG = os.path.join(APP_DIR, "backpack_tool_icon_256.png")
 APP_USER_MODEL_ID = "GundamSlave.BackpackGridTool"
@@ -343,7 +746,7 @@ def _ensure_admin():
         if rc <= 32:
             try:
                 from tkinter import messagebox
-                messagebox.showerror("需要管理员权限", "未能获取管理员权限，程序无法启动。")
+                messagebox.showerror(t("admin_title"), t("admin_msg"))
             except Exception:
                 pass
     except Exception:
@@ -484,6 +887,39 @@ HOTKEY_ACTIONS = [
     ("region_up", "（旧）区上"),
     ("region_down", "（旧）区下"),
 ]
+
+def hotkey_action_title(act: str) -> str:
+    """底栏短名 / 对话框长名用的热键标题。"""
+    short = {
+        "toggle_mouse": "hk_toggle_mouse",
+        "toggle_overlay": "hk_toggle_overlay",
+        "toggle_global_lock": "hk_toggle_global_lock",
+        "prev_region": "hk_prev_region",
+        "next_region": "hk_next_region",
+        "cell_left": "hk_cell_left",
+        "cell_right": "hk_cell_right",
+        "cell_up": "hk_cell_up",
+        "cell_down": "hk_cell_down",
+        "prev_layout": "hk_prev_layout",
+        "next_layout": "hk_next_layout",
+        "cell_home": "hk_cell_home",
+        "cell_again": "hk_cell_again",
+    }
+    full = {
+        "toggle_mouse": "hk_full_toggle_mouse",
+        "toggle_overlay": "hk_full_toggle_overlay",
+        "toggle_global_lock": "hk_full_toggle_global_lock",
+    }
+    if act in full:
+        return t(full[act])
+    if act in short:
+        return t(short[act])
+    # 兼容 HOTKEY_ACTIONS 中文兜底
+    for k, title in HOTKEY_ACTIONS:
+        if k == act:
+            return title
+    return act
+
 
 DEFAULT_KEYS = {
     "cell_left": "left",
@@ -780,7 +1216,7 @@ class FeaturePointsDialog(Toplevel):
         self.master_app = master
         self.layout_idx = layout_idx
         lay = master.layouts[layout_idx]
-        self.title(f"特征点取色 — {lay.name}")
+        self.title(t("fp_title", name=lay.name))
         self.resizable(True, True)
         self.transient(master)
         self.geometry("420x460")
@@ -789,20 +1225,16 @@ class FeaturePointsDialog(Toplevel):
         self.pick_on = False
         self._closed = False
 
-        tip = (
-            "用法：先打开/粘贴背包截图，点「开始点选」后在右侧编辑画布上点击特征位置。\n"
-            "每个点记录图像坐标与 RGB。运行时按该界面分辨率映射到屏幕采样；\n"
-            "全部特征点颜色均在容差内时，自动切换到本界面。未设置则功能关闭。"
-        )
+        tip = t("fp_tip")
         Label(self, text=tip, wraplength=390, justify="left", fg="#333").pack(
             fill=X, padx=12, pady=(12, 6)
         )
 
         tf = Frame(self)
         tf.pack(fill=X, padx=12, pady=2)
-        Label(tf, text="颜色容差 ±").pack(side=LEFT)
+        Label(tf, text=t("fp_tol")).pack(side=LEFT)
         Entry(tf, textvariable=self.tol_var, width=6).pack(side=LEFT, padx=4)
-        Label(tf, text="（建议 12～18）").pack(side=LEFT)
+        Label(tf, text=t("fp_tol_hint")).pack(side=LEFT)
 
         lf = Frame(self)
         lf.pack(fill=BOTH, expand=True, padx=12, pady=6)
@@ -814,15 +1246,15 @@ class FeaturePointsDialog(Toplevel):
 
         bf = Frame(self)
         bf.pack(fill=X, padx=12, pady=4)
-        self.btn_pick = Button(bf, text="开始点选", command=self._toggle_pick)
+        self.btn_pick = Button(bf, text=t("fp_start"), command=self._toggle_pick)
         self.btn_pick.pack(side=LEFT, expand=True, fill=X)
-        Button(bf, text="删除选中", command=self._del_sel).pack(side=LEFT, expand=True, fill=X, padx=4)
-        Button(bf, text="清空全部", command=self._clear_all).pack(side=LEFT, expand=True, fill=X)
+        Button(bf, text=t("fp_del_sel"), command=self._del_sel).pack(side=LEFT, expand=True, fill=X, padx=4)
+        Button(bf, text=t("fp_clear"), command=self._clear_all).pack(side=LEFT, expand=True, fill=X)
 
         bf2 = Frame(self)
         bf2.pack(fill=X, padx=12, pady=(4, 12))
-        Button(bf2, text="保存并开启", command=self._save, bg="#c8e6c9").pack(side=LEFT, expand=True, fill=X)
-        Button(bf2, text="取消", command=self._cancel).pack(side=LEFT, expand=True, fill=X, padx=4)
+        Button(bf2, text=t("fp_save"), command=self._save, bg="#c8e6c9").pack(side=LEFT, expand=True, fill=X)
+        Button(bf2, text=t("cancel"), command=self._cancel).pack(side=LEFT, expand=True, fill=X, padx=4)
 
         self.hint = Label(self, text="", fg="#1565c0", wraplength=390, justify="left")
         self.hint.pack(fill=X, padx=12, pady=(0, 8))
@@ -831,7 +1263,7 @@ class FeaturePointsDialog(Toplevel):
         self.bind("<Destroy>", self._on_destroy)
         self._refresh_list()
         if master.image is None:
-            self.hint.config(text="当前无截图，请先「打开截图」或「粘贴截图」再点选。", fg="#c62828")
+            self.hint.config(text=t("fp_no_img"), fg="#c62828")
 
     def _tol(self) -> int:
         try:
@@ -853,15 +1285,15 @@ class FeaturePointsDialog(Toplevel):
             self._stop_pick()
             return
         if self.master_app.image is None:
-            messagebox.showinfo("提示", "请先打开或粘贴一张截图，再点选特征点。", parent=self)
+            messagebox.showinfo(t("tip"), t("fp_need_img"), parent=self)
             return
         # 切到目标界面，便于对照
         if self.master_app.layout_i != self.layout_idx:
             self.master_app.switch_layout(self.layout_idx)
         self.pick_on = True
         self.master_app._feature_pick_cb = self._on_canvas_pick
-        self.btn_pick.config(text="停止点选", bg="#fff59d")
-        self.hint.config(text="点选中：请在右侧编辑画布上点击特征位置（Esc 或再点按钮停止）。", fg="#1565c0")
+        self.btn_pick.config(text=t("fp_stop"), bg="#fff59d")
+        self.hint.config(text=t("fp_picking"), fg="#1565c0")
         self.master_app._draw_feature_markers(self.points)
         try:
             self.master_app.bind("<Escape>", self._esc_pick)
@@ -877,10 +1309,10 @@ class FeaturePointsDialog(Toplevel):
         if getattr(self.master_app, "_feature_pick_cb", None) is self._on_canvas_pick:
             self.master_app._feature_pick_cb = None
         try:
-            self.btn_pick.config(text="开始点选", bg="#f0f0f0")
+            self.btn_pick.config(text=t("fp_start"), bg="#f0f0f0")
         except Exception:
             pass
-        self.hint.config(text="已停止点选。", fg="#666")
+        self.hint.config(text=t("fp_stopped"), fg="#666")
         try:
             self.master_app.unbind("<Escape>")
         except Exception:
@@ -928,7 +1360,7 @@ class FeaturePointsDialog(Toplevel):
     def _clear_all(self):
         if not self.points:
             return
-        if not messagebox.askyesno("确认", "清空本界面全部特征点？", parent=self):
+        if not messagebox.askyesno(t("confirm"), t("fp_clear_confirm"), parent=self):
             return
         self.points = []
         self._refresh_list()
@@ -951,9 +1383,9 @@ class FeaturePointsDialog(Toplevel):
         self.master_app.save_layouts_file()
         n = len(lay.feature_points)
         if n:
-            self.master_app.status_var.set(f"「{lay.name}」已设 {n} 个特征点，自动切界面已开启")
+            self.master_app.status_var.set(t("fp_saved", name=lay.name, n=n))
         else:
-            self.master_app.status_var.set(f"「{lay.name}」特征点已清空，自动切界面关闭")
+            self.master_app.status_var.set(t("fp_cleared", name=lay.name))
         self._closed = True
         self.destroy()
 
@@ -979,7 +1411,7 @@ class HotkeyDialog(Toplevel):
     def __init__(self, master: "App"):
         super().__init__(master)
         self.master_app = master
-        self.title("快捷键设置")
+        self.title(t("hk_dlg_title"))
         self.resizable(False, False)
         self.transient(master)
         self.grab_set()
@@ -989,53 +1421,52 @@ class HotkeyDialog(Toplevel):
         self.layout_labels = []
         self.waiting = None  # ("global", act) or ("layout", idx)
 
-        Label(self, text="点击「更改」后按键。界面切换键按层级单独设置。",
+        Label(self, text=t("hk_dlg_tip"),
               wraplength=460, justify="left").grid(row=0, column=0, columnspan=3, padx=12, pady=(12, 8), sticky="w")
 
         groups = [
-            ("格子移鼠（开启移鼠后全局）", ["cell_left", "cell_right", "cell_up", "cell_down"]),
-            ("切换区域（当前界面的大区）", ["prev_region", "next_region"]),
-            ("界面循环 / 其它", [
+            (t("hk_group_cell"), ["cell_left", "cell_right", "cell_up", "cell_down"]),
+            (t("hk_group_region"), ["prev_region", "next_region"]),
+            (t("hk_group_other"), [
                 "prev_layout", "next_layout", "toggle_mouse", "toggle_overlay",
                 "toggle_global_lock", "cell_home", "cell_again",
             ]),
         ]
         row = 1
-        titles = {k: t for k, t in HOTKEY_ACTIONS}
         for title, acts in groups:
             Label(self, text=title, font=("Segoe UI", 10, "bold")).grid(
                 row=row, column=0, columnspan=3, sticky="w", padx=12, pady=(10, 4)
             )
             row += 1
             for act in acts:
-                Label(self, text=titles[act], width=20, anchor="w").grid(row=row, column=0, padx=12, pady=2, sticky="w")
+                Label(self, text=hotkey_action_title(act), width=20, anchor="w").grid(row=row, column=0, padx=12, pady=2, sticky="w")
                 lb = Label(self, text=pretty_key(self.keys[act]), width=14, relief="groove", bg="#f5f5f5")
                 lb.grid(row=row, column=1, padx=4, pady=2)
                 self.labels[act] = lb
-                Button(self, text="更改", width=8,
+                Button(self, text=t("hk_dlg_change"), width=8,
                        command=lambda a=act: self._begin(("global", a))).grid(row=row, column=2, padx=12, pady=2)
                 row += 1
 
-        Label(self, text="各背包界面专属切换键", font=("Segoe UI", 10, "bold")).grid(
+        Label(self, text=t("hk_dlg_section_layout"), font=("Segoe UI", 10, "bold")).grid(
             row=row, column=0, columnspan=3, sticky="w", padx=12, pady=(10, 4)
         )
         row += 1
         for i, lay in enumerate(master.layouts):
-            Label(self, text=f"切换到「{lay.name}」", width=20, anchor="w").grid(
+            Label(self, text=t("hk_dlg_switch_to", name=lay.name), width=20, anchor="w").grid(
                 row=row, column=0, padx=12, pady=2, sticky="w"
             )
-            lb = Label(self, text=pretty_key(self.layout_keys[i]) or "未设置", width=14, relief="groove", bg="#e3f2fd")
+            lb = Label(self, text=pretty_key(self.layout_keys[i]) or t("hk_dlg_unset"), width=14, relief="groove", bg="#e3f2fd")
             lb.grid(row=row, column=1, padx=4, pady=2)
             self.layout_labels.append(lb)
-            Button(self, text="更改", width=8,
+            Button(self, text=t("hk_dlg_change"), width=8,
                    command=lambda idx=i: self._begin(("layout", idx))).grid(row=row, column=2, padx=12, pady=2)
             row += 1
 
         bf = Frame(self)
         bf.grid(row=row, column=0, columnspan=3, pady=12)
-        Button(bf, text="恢复默认", command=self._reset).pack(side=LEFT, padx=6)
-        Button(bf, text="保存", command=self._save).pack(side=LEFT, padx=6)
-        Button(bf, text="取消", command=self.destroy).pack(side=LEFT, padx=6)
+        Button(bf, text=t("hk_dlg_reset"), command=self._reset).pack(side=LEFT, padx=6)
+        Button(bf, text=t("save"), command=self._save).pack(side=LEFT, padx=6)
+        Button(bf, text=t("cancel"), command=self.destroy).pack(side=LEFT, padx=6)
 
         self.bind("<KeyPress>", self._on_key)
         self.hint = Label(self, text="", fg="#c62828")
@@ -1045,10 +1476,10 @@ class HotkeyDialog(Toplevel):
         self.waiting = token
         kind, ref = token
         if kind == "global":
-            self.labels[ref].config(text="请按键…", bg="#fff59d")
+            self.labels[ref].config(text=t("press_key"), bg="#fff59d")
         else:
-            self.layout_labels[ref].config(text="请按键…", bg="#fff59d")
-        self.hint.config(text="正在监听（Esc 取消）")
+            self.layout_labels[ref].config(text=t("press_key"), bg="#fff59d")
+        self.hint.config(text=t("hk_listening"))
         self.focus_set()
 
     def _on_key(self, event):
@@ -1066,7 +1497,7 @@ class HotkeyDialog(Toplevel):
             self.hint.config(text="")
             return
         if not vk_of(sym) and len(sym) != 1:
-            self.hint.config(text=f"不支持的键：{event.keysym}")
+            self.hint.config(text=t("hk_unsupported", key=event.keysym))
             return
         if kind == "global":
             self.keys[ref] = sym
@@ -1101,7 +1532,7 @@ class SwitcherWindow(Toplevel):
     def __init__(self, master: "App"):
         super().__init__(master)
         self.master_app = master
-        self.title("界面切换")
+        self.title(t("switcher_title"))
         self.attributes("-topmost", True)
         self.resizable(False, False)
         self.geometry("+40+80")
@@ -1113,7 +1544,7 @@ class SwitcherWindow(Toplevel):
     def refresh(self):
         for w in self.body.winfo_children():
             w.destroy()
-        Label(self.body, text="点击或用专属快捷键切换", fg="#555").pack(anchor="w", pady=(0, 6))
+        Label(self.body, text=t("switcher_tip"), fg="#555").pack(anchor="w", pady=(0, 6))
         app = self.master_app
         for i, lay in enumerate(app.layouts):
             on = i == app.layout_i
@@ -1296,9 +1727,10 @@ class App(Tk):
         self.offset_x = 0
         self.offset_y = 0
 
+        self.ui_lang = load_ui_lang()
         self.layouts = [Layout(name="背包", switch_key="")]
         self.global_lock = True
-        self.global_lock_var = StringVar(value="全局锁定")
+        self.global_lock_var = StringVar(value=t("global_lock"))
         self.global_lock_chk = IntVar(value=1)
         self.layout_i = 0
         self.cur = 0
@@ -1309,7 +1741,7 @@ class App(Tk):
         self.switcher = None
         self.overlay = None
         self.overlay_on = False
-        self.overlay_var = StringVar(value="屏幕辅助线：关闭")
+        self.overlay_var = StringVar(value=t("overlay_off"))
 
         self.layout_name_var = StringVar(value="背包")
         self.name_var = StringVar(value="区域1")
@@ -1321,11 +1753,11 @@ class App(Tk):
         self.res_w_var = StringVar(value="1920")
         self.res_h_var = StringVar(value="1080")
         self.res_preset_var = StringVar(value="1K / 1080p (1920×1080)")
-        self.status_var = StringVar(value="请加载一张背包截图")
+        self.status_var = StringVar(value=t("status_load"))
         self.info_var = StringVar(value="")
-        self.mouse_var = StringVar(value="移鼠：关闭")
+        self.mouse_var = StringVar(value=t("mouse_off"))
         self.hotkey_hint_var = StringVar(value="")
-        self.active_var = StringVar(value="●  未激活")
+        self.active_var = StringVar(value=t("active_off"))
         self.draw_border_var = IntVar(value=1)
         self.cross_region_var = IntVar(value=0)
         self.config_name_var = StringVar(value=DEFAULT_CONFIG_NAME)
@@ -1354,6 +1786,7 @@ class App(Tk):
         self._ensure_configs_migrated()
         self._load_active_config()
         self._build_ui()
+        self.apply_language()
         self.apply_hotkeys(self.hotkeys)
         self._show_layout()
         self._redraw()
@@ -1631,7 +2064,7 @@ class App(Tk):
             has_fp = bool(getattr(lay, "feature_points", None))
             # 右侧先放「色」再放快捷键（pack RIGHT 先者靠最右）
             fb = Button(
-                row, text="色", width=3,
+                row, text=t("color_btn"), width=3,
                 bg="#c8e6c9" if has_fp else "#e0e0e0",
                 fg="#1b5e20" if has_fp else "#666666",
                 relief="raised" if has_fp else "flat",
@@ -1640,7 +2073,7 @@ class App(Tk):
             fb.pack(side=RIGHT, padx=(0, 2))
             fb.bind("<Button-3>", lambda e, idx=i: (self.clear_feature_points(idx) or "break"))
             self.layout_feature_btns[i] = fb
-            keytxt = pretty_key(lay.switch_key) or "未设"
+            keytxt = pretty_key(lay.switch_key) or t("unset")
             kb = Button(row, text=keytxt, width=6,
                         command=lambda idx=i: self.begin_capture(("layout", idx)))
             kb.pack(side=RIGHT, padx=2)
@@ -1685,7 +2118,7 @@ class App(Tk):
             lab.pack(side=LEFT, fill=X, expand=True)
             var = IntVar(value=1 if r.locked else 0)
             chk = Checkbutton(
-                row, text="锁定", variable=var, bg=bg,
+                row, text=t("lock"), variable=var, bg=bg,
                 command=lambda idx=i, v=var: self._set_region_lock(idx, bool(v.get())),
             )
             if self.global_lock:
@@ -1713,7 +2146,7 @@ class App(Tk):
     def _popup_rename_layout(self, event, idx):
         self.switch_layout(idx)
         menu = Menu(self, tearoff=0)
-        menu.add_command(label="重命名界面", command=lambda: self.rename_layout(idx))
+        menu.add_command(label=t("menu_rename_layout"), command=lambda: self.rename_layout(idx))
         try:
             menu.tk_popup(event.x_root, event.y_root)
         finally:
@@ -1725,11 +2158,11 @@ class App(Tk):
             return
         self.select_region(idx)
         menu = Menu(self, tearoff=0)
-        menu.add_command(label="重命名区域", command=lambda: self.rename_region(idx))
-        menu.add_command(label="链接区域…", command=lambda: self._link_region_dialog(idx))
-        menu.add_command(label="清除本区链接", command=lambda: self._clear_region_links(idx))
+        menu.add_command(label=t("menu_rename_region"), command=lambda: self.rename_region(idx))
+        menu.add_command(label=t("menu_link_region"), command=lambda: self._link_region_dialog(idx))
+        menu.add_command(label=t("menu_clear_links"), command=lambda: self._clear_region_links(idx))
         menu.add_separator()
-        menu.add_command(label="删除区域", command=lambda: self._del_region_at(idx))
+        menu.add_command(label=t("menu_del_region"), command=lambda: self._del_region_at(idx))
         try:
             menu.tk_popup(event.x_root, event.y_root)
         finally:
@@ -1754,7 +2187,7 @@ class App(Tk):
             ):
                 if getattr(other, attr) == idx:
                     setattr(other, attr, None)
-        self.status_var.set(f"已清除「{r.name}」的链接")
+        self.status_var.set(t("link_cleared", name=r.name))
         self._refresh_region_list()
         self._redraw()
 
@@ -1763,14 +2196,14 @@ class App(Tk):
         if src_idx < 0 or src_idx >= len(regs):
             return
         if len(regs) < 2:
-            messagebox.showinfo("提示", "至少需要两个区域才能链接。")
+            messagebox.showinfo(t("tip"), t("need_two_regions"))
             return
         dlg = Toplevel(self)
         dlg.title("链接区域")
         dlg.resizable(False, False)
         dlg.transient(self)
         dlg.grab_set()
-        Label(dlg, text=f"将「{regs[src_idx].name}」链接到：", anchor="w").pack(fill=X, padx=12, pady=(10, 4))
+        Label(dlg, text=t("link_label", name=regs[src_idx].name), anchor="w").pack(fill=X, padx=12, pady=(10, 4))
         lb = Listbox(dlg, height=min(10, len(regs) - 1), exportselection=False)
         choices = []
         for i, r in enumerate(regs):
@@ -1785,7 +2218,7 @@ class App(Tk):
         def _ok():
             sel = lb.curselection()
             if not sel:
-                messagebox.showinfo("提示", "请选择目标区域。", parent=dlg)
+                messagebox.showinfo(t("tip"), t("pick_target"), parent=dlg)
                 return
             dst_idx = choices[sel[0]]
             self._link_regions_auto(src_idx, dst_idx)
@@ -1793,8 +2226,8 @@ class App(Tk):
 
         bf = Frame(dlg)
         bf.pack(fill=X, padx=12, pady=(4, 10))
-        Button(bf, text="确定", command=_ok).pack(side=RIGHT, padx=4)
-        Button(bf, text="取消", command=dlg.destroy).pack(side=RIGHT)
+        Button(bf, text=t("ok"), command=_ok).pack(side=RIGHT, padx=4)
+        Button(bf, text=t("cancel"), command=dlg.destroy).pack(side=RIGHT)
         dlg.wait_window()
 
     def _link_regions_auto(self, src_idx, dst_idx):
@@ -1839,12 +2272,12 @@ class App(Tk):
             return
         self._sync_from_ui()
         old = regs[idx].name
-        name = simpledialog.askstring("重命名区域", "新名称：", initialvalue=old, parent=self)
+        name = simpledialog.askstring(t("rename_region"), t("rename_prompt"), initialvalue=old, parent=self)
         if name is None:
             return
         name = name.strip()
         if not name:
-            messagebox.showinfo("提示", "名称不能为空。")
+            messagebox.showinfo(t("tip"), t("name_empty"))
             return
         regs[idx].name = name
         if idx == self.cur:
@@ -1857,7 +2290,7 @@ class App(Tk):
 
     def _set_region_lock(self, idx, locked):
         if self.global_lock:
-            self.status_var.set("全局锁定中，请先取消勾选上方全局锁定")
+            self.status_var.set(t("lock_need_global_off_chk"))
             self._refresh_region_list()
             return
         if 0 <= idx < len(self.regions()):
@@ -1868,7 +2301,7 @@ class App(Tk):
         self.global_lock = bool(self.global_lock_chk.get())
         self._refresh_lock_button()
         self._refresh_region_list()
-        self.status_var.set("全局锁定" if self.global_lock else "全局解锁，可调区域")
+        self.status_var.set(t("lock_on") if self.global_lock else t("lock_off"))
         self._redraw()
 
     def region_is_locked(self, reg=None):
@@ -1881,7 +2314,7 @@ class App(Tk):
         if idx < 0 or idx >= len(self.regions()):
             return
         if self.global_lock:
-            self.status_var.set("全局锁定中，请先解除全局锁定")
+            self.status_var.set(t("lock_need_global_off"))
             return
         r = self.regions()[idx]
         r.locked = not r.locked
@@ -1893,15 +2326,12 @@ class App(Tk):
         self.global_lock_chk.set(1 if self.global_lock else 0)
         self._refresh_lock_button()
         self._refresh_region_list()
-        self.status_var.set("全局锁定" if self.global_lock else "全局解锁，可调区域")
+        self.status_var.set(t("lock_on") if self.global_lock else t("lock_off"))
         self._redraw()
 
     def _refresh_lock_button(self):
         extra = self._hk_suffix("toggle_global_lock")
-        if self.global_lock:
-            self.global_lock_var.set(f"全局锁定{extra}")
-        else:
-            self.global_lock_var.set(f"全局锁定{extra}")
+        self.global_lock_var.set(f"{t('global_lock')}{extra}")
         self.global_lock_chk.set(1 if self.global_lock else 0)
 
     def _hk_suffix(self, act):
@@ -1976,8 +2406,15 @@ class App(Tk):
 
         loadf = Frame(left)
         loadf.pack(fill=X)
-        Button(loadf, text="打开截图", command=self.load_image).pack(side=LEFT, expand=True, fill=X)
-        Button(loadf, text="粘贴截图", command=self.paste_clipboard).pack(side=LEFT, expand=True, fill=X, padx=(4, 0))
+        self.btn_open = Button(loadf, text=t("open_screenshot"), command=self.load_image)
+        self.btn_open.pack(side=LEFT, expand=True, fill=X)
+        self.btn_paste = Button(loadf, text=t("paste_screenshot"), command=self.paste_clipboard)
+        self.btn_paste.pack(side=LEFT, expand=True, fill=X, padx=(4, 0))
+        self.btn_lang = Button(
+            loadf, text=t("lang_btn"), command=self.toggle_language,
+            bg="#1565c0", fg="white", activebackground="#0d47a1", activeforeground="white",
+        )
+        self.btn_lang.pack(side=LEFT, padx=(4, 0))
 
         self.chk_global_lock = Checkbutton(
             left, textvariable=self.global_lock_var, variable=self.global_lock_chk,
@@ -1987,69 +2424,93 @@ class App(Tk):
         self.btn_overlay = Button(left, textvariable=self.overlay_var, command=self.toggle_overlay, bg="#444", fg="white")
         self.btn_overlay.pack(fill=X, pady=2)
 
-        Label(left, text="背包界面 / 层级", anchor="w",
-              font=("Segoe UI", 9, "bold")).pack(fill=X, pady=(8, 2))
+        self.lbl_layouts_title = Label(left, text=t("layouts_title"), anchor="w",
+              font=("Segoe UI", 9, "bold"))
+        self.lbl_layouts_title.pack(fill=X, pady=(8, 2))
         self.layout_list_canvas, self.layout_list_inner = self._make_scroll_box(left, 130)
         self.layout_list = None
         lbf = Frame(left)
         lbf.pack(fill=X, pady=2)
-        Button(lbf, text="新增界面", command=self.add_layout).pack(side=LEFT, expand=True, fill=X)
-        Button(lbf, text="复制", command=self.dup_layout).pack(side=LEFT, expand=True, fill=X, padx=3)
-        Button(lbf, text="删除", command=self.del_layout).pack(side=LEFT, expand=True, fill=X)
+        self.btn_add_layout = Button(lbf, text=t("add_layout"), command=self.add_layout)
+        self.btn_add_layout.pack(side=LEFT, expand=True, fill=X)
+        self.btn_dup_layout = Button(lbf, text=t("copy"), command=self.dup_layout)
+        self.btn_dup_layout.pack(side=LEFT, expand=True, fill=X, padx=3)
+        self.btn_del_layout = Button(lbf, text=t("delete"), command=self.del_layout)
+        self.btn_del_layout.pack(side=LEFT, expand=True, fill=X)
         lnf = Frame(left)
         lnf.pack(fill=X, pady=(2, 6))
-        Label(lnf, text="界面名").pack(side=LEFT)
+        self.lbl_layout_name = Label(lnf, text=t("layout_name"))
+        self.lbl_layout_name.pack(side=LEFT)
         Entry(lnf, textvariable=self.layout_name_var).pack(side=LEFT, fill=X, expand=True, padx=6)
 
-        Label(left, text="当前界面的大区", anchor="w",
-              font=("Segoe UI", 9, "bold")).pack(fill=X, pady=(4, 2))
+        self.lbl_regions_title = Label(left, text=t("regions_title"), anchor="w",
+              font=("Segoe UI", 9, "bold"))
+        self.lbl_regions_title.pack(fill=X, pady=(4, 2))
         self.region_list_canvas, self.region_list_inner = self._make_scroll_box(left, 130)
         self.listbox = None
         bf = Frame(left)
         bf.pack(fill=X, pady=2)
-        Button(bf, text="新增大区", command=self.add_region).pack(side=LEFT, expand=True, fill=X)
-        Button(bf, text="复制", command=self.dup_region).pack(side=LEFT, expand=True, fill=X, padx=3)
-        Button(bf, text="删除", command=self.del_region).pack(side=LEFT, expand=True, fill=X)
+        self.btn_add_region = Button(bf, text=t("add_region"), command=self.add_region)
+        self.btn_add_region.pack(side=LEFT, expand=True, fill=X)
+        self.btn_dup_region = Button(bf, text=t("copy"), command=self.dup_region)
+        self.btn_dup_region.pack(side=LEFT, expand=True, fill=X, padx=3)
+        self.btn_del_region = Button(bf, text=t("delete"), command=self.del_region)
+        self.btn_del_region.pack(side=LEFT, expand=True, fill=X)
         nf = Frame(left)
         nf.pack(fill=X, pady=(2, 2))
-        Label(nf, text="大区名").pack(side=LEFT)
+        self.lbl_region_name = Label(nf, text=t("region_name"))
+        self.lbl_region_name.pack(side=LEFT)
         Entry(nf, textvariable=self.name_var).pack(side=LEFT, fill=X, expand=True, padx=6)
         self.region_label = Label(left, text="", anchor="w", fg="#333")
         self.region_label.pack(fill=X)
         rowf = Frame(left)
         rowf.pack(fill=X, pady=2)
-        Label(rowf, text="列").pack(side=LEFT)
+        self.lbl_cols = Label(rowf, text=t("cols"))
+        self.lbl_cols.pack(side=LEFT)
         Entry(rowf, textvariable=self.cols_var, width=5).pack(side=LEFT, padx=4)
-        Label(rowf, text="行").pack(side=LEFT)
+        self.lbl_rows = Label(rowf, text=t("rows"))
+        self.lbl_rows.pack(side=LEFT)
         Entry(rowf, textvariable=self.rows_var, width=5).pack(side=LEFT, padx=4)
-        Label(left, text="格子宽高（按区域自动计算）", anchor="w").pack(fill=X)
+        self.lbl_cell_wh = Label(left, text=t("cell_wh_auto"), anchor="w")
+        self.lbl_cell_wh.pack(fill=X)
         cf = Frame(left)
         cf.pack(fill=X)
-        Label(cf, text="宽").pack(side=LEFT)
+        self.lbl_cell_w = Label(cf, text=t("width"))
+        self.lbl_cell_w.pack(side=LEFT)
         Entry(cf, textvariable=self.cell_w_var, width=7).pack(side=LEFT, padx=4)
-        Label(cf, text="高").pack(side=LEFT)
+        self.lbl_cell_h = Label(cf, text=t("height"))
+        self.lbl_cell_h.pack(side=LEFT)
         Entry(cf, textvariable=self.cell_h_var, width=7).pack(side=LEFT, padx=4)
         of = Frame(left)
         of.pack(fill=X, pady=4)
-        Button(of, text="格子中心", command=lambda: self._set_origin("center")).pack(side=LEFT, expand=True, fill=X)
-        Button(of, text="左上角", command=lambda: self._set_origin("topleft")).pack(side=LEFT, expand=True, fill=X, padx=(4, 0))
-        Button(left, text="按格子尺寸重算大区", command=self.resize_region_from_cells).pack(fill=X, pady=1)
-        Checkbutton(
-            left, text="跨区域移动（开：有链接则跨区，无链接卡边缘；关：环绕）", variable=self.cross_region_var,
+        self.btn_origin_center = Button(of, text=t("cell_center"), command=lambda: self._set_origin("center"))
+        self.btn_origin_center.pack(side=LEFT, expand=True, fill=X)
+        self.btn_origin_tl = Button(of, text=t("topleft"), command=lambda: self._set_origin("topleft"))
+        self.btn_origin_tl.pack(side=LEFT, expand=True, fill=X, padx=(4, 0))
+        self.btn_resize_cells = Button(left, text=t("resize_from_cells"), command=self.resize_region_from_cells)
+        self.btn_resize_cells.pack(fill=X, pady=1)
+        self.chk_cross_region = Checkbutton(
+            left, text=t("cross_region"), variable=self.cross_region_var,
             command=self._on_cross_region_check, anchor="w",
-        ).pack(fill=X, pady=(4, 0))
+        )
+        self.chk_cross_region.pack(fill=X, pady=(4, 0))
 
         savef = Frame(left)
         savef.pack(fill=X, pady=(8, 2))
-        Button(savef, text="保存", command=self.save_layouts_file).pack(side=LEFT, expand=True, fill=X)
-        Button(savef, text="复制JSON", command=self.copy_json).pack(side=LEFT, expand=True, fill=X, padx=3)
-        Button(savef, text="导出", command=self.export_json).pack(side=LEFT, expand=True, fill=X)
+        self.btn_save = Button(savef, text=t("save"), command=self.save_layouts_file)
+        self.btn_save.pack(side=LEFT, expand=True, fill=X)
+        self.btn_copy_json = Button(savef, text=t("copy_json"), command=self.copy_json)
+        self.btn_copy_json.pack(side=LEFT, expand=True, fill=X, padx=3)
+        self.btn_export = Button(savef, text=t("export"), command=self.export_json)
+        self.btn_export.pack(side=LEFT, expand=True, fill=X)
 
-        Label(left, text="配置文件（多游戏）", anchor="w",
-              font=("Segoe UI", 9, "bold")).pack(fill=X, pady=(8, 2))
+        self.lbl_config_title = Label(left, text=t("config_title"), anchor="w",
+              font=("Segoe UI", 9, "bold"))
+        self.lbl_config_title.pack(fill=X, pady=(8, 2))
         cfgf = Frame(left)
         cfgf.pack(fill=X)
-        Label(cfgf, text="当前").pack(side=LEFT)
+        self.lbl_config_current = Label(cfgf, text=t("current"))
+        self.lbl_config_current.pack(side=LEFT)
         self.config_combo = ttk.Combobox(
             cfgf, textvariable=self.config_combo_var, state="readonly", width=14,
         )
@@ -2057,10 +2518,14 @@ class App(Tk):
         self.config_combo.bind("<<ComboboxSelected>>", lambda e: None)
         cfgb = Frame(left)
         cfgb.pack(fill=X, pady=2)
-        Button(cfgb, text="切换配置", command=self.switch_config_prompt).pack(side=LEFT, expand=True, fill=X)
-        Button(cfgb, text="新建", command=self.new_config).pack(side=LEFT, expand=True, fill=X, padx=2)
-        Button(cfgb, text="另存为", command=self.save_config_as).pack(side=LEFT, expand=True, fill=X, padx=2)
-        Button(cfgb, text="删除", command=self.delete_config).pack(side=LEFT, expand=True, fill=X)
+        self.btn_switch_cfg = Button(cfgb, text=t("switch_config"), command=self.switch_config_prompt)
+        self.btn_switch_cfg.pack(side=LEFT, expand=True, fill=X)
+        self.btn_new_cfg = Button(cfgb, text=t("new"), command=self.new_config)
+        self.btn_new_cfg.pack(side=LEFT, expand=True, fill=X, padx=2)
+        self.btn_save_as_cfg = Button(cfgb, text=t("save_as"), command=self.save_config_as)
+        self.btn_save_as_cfg.pack(side=LEFT, expand=True, fill=X, padx=2)
+        self.btn_del_cfg = Button(cfgb, text=t("delete"), command=self.delete_config)
+        self.btn_del_cfg.pack(side=LEFT, expand=True, fill=X)
         self.btn_mouse = Button(left, textvariable=self.mouse_var, command=self.toggle_mouse, bg="#444", fg="white")
         Label(left, textvariable=self.info_var, justify="left", wraplength=280, fg="#063", anchor="w").pack(fill=X, pady=(4, 0))
         Label(left, textvariable=self.status_var, justify="left", wraplength=280, fg="#666", anchor="w").pack(fill=X)
@@ -2073,7 +2538,8 @@ class App(Tk):
         # ----- 底部：激活 / 分辨率 / 快捷键 -----
         col1 = Frame(bottom)
         col1.pack(side=LEFT, padx=(0, 16), fill=Y)
-        Label(col1, text="激活", font=("Segoe UI", 9, "bold")).pack(anchor="w")
+        self.lbl_activate = Label(col1, text=t("activate"), font=("Segoe UI", 9, "bold"))
+        self.lbl_activate.pack(anchor="w")
         actf = Frame(col1)
         actf.pack()
         self.btn_active = Button(
@@ -2083,14 +2549,15 @@ class App(Tk):
         )
         self.btn_active.pack(side=LEFT)
         self.chk_border = Checkbutton(
-            actf, text="同时绘制\n界面边框", variable=self.draw_border_var,
+            actf, text=t("draw_border"), variable=self.draw_border_var,
             command=self._on_border_check, justify="left",
         )
         self.chk_border.pack(side=LEFT, padx=8)
 
         col2 = Frame(bottom)
         col2.pack(side=LEFT, padx=(0, 16), fill=Y)
-        Label(col2, text="分辨率", font=("Segoe UI", 9, "bold")).pack(anchor="w")
+        self.lbl_resolution = Label(col2, text=t("resolution"), font=("Segoe UI", 9, "bold"))
+        self.lbl_resolution.pack(anchor="w")
         self.res_combo = ttk.Combobox(
             col2, textvariable=self.res_preset_var,
             values=RES_PRESET_NAMES, state="readonly", width=26,
@@ -2099,16 +2566,20 @@ class App(Tk):
         self.res_combo.bind("<<ComboboxSelected>>", self._on_preset_selected)
         rf2 = Frame(col2)
         rf2.pack(anchor="w")
-        Label(rf2, text="宽").pack(side=LEFT)
+        self.lbl_res_w = Label(rf2, text=t("width"))
+        self.lbl_res_w.pack(side=LEFT)
         Entry(rf2, textvariable=self.res_w_var, width=7).pack(side=LEFT, padx=4)
-        Label(rf2, text="高").pack(side=LEFT)
+        self.lbl_res_h = Label(rf2, text=t("height"))
+        self.lbl_res_h.pack(side=LEFT)
         Entry(rf2, textvariable=self.res_h_var, width=7).pack(side=LEFT, padx=4)
-        Button(col2, text="用截图尺寸", command=self.use_image_resolution).pack(anchor="w", pady=2)
+        self.btn_use_img_res = Button(col2, text=t("use_image_res"), command=self.use_image_resolution)
+        self.btn_use_img_res.pack(anchor="w", pady=2)
 
         col3 = Frame(bottom)
         col3.pack(side=LEFT, fill=BOTH, expand=True)
-        Label(col3, text="快捷键（点键名后按键，Esc 或右键取消，Backspace 清空）",
-              font=("Segoe UI", 9, "bold")).pack(anchor="w")
+        self.lbl_hotkeys_title = Label(col3, text=t("hotkeys_title"),
+              font=("Segoe UI", 9, "bold"))
+        self.lbl_hotkeys_title.pack(anchor="w")
         self.capture_hint_var = StringVar(value="")
         self.capture_hint = Label(col3, textvariable=self.capture_hint_var, fg="#ef6c00",
                                   font=("Segoe UI", 9, "bold"))
@@ -2150,6 +2621,94 @@ class App(Tk):
         self.bind("{", lambda e: self._edit_inflate(-10))
         self.bind("}", lambda e: self._edit_inflate(10))
 
+
+    def toggle_language(self):
+        """中文 ↔ English；立即刷新可见文案并写入 ui_lang.json。"""
+        new_lang = "en" if getattr(self, "ui_lang", "zh") == "zh" else "zh"
+        self.ui_lang = new_lang
+        save_ui_lang(new_lang)
+        self.apply_language()
+        self.status_var.set(t("lang_switched"))
+
+    def apply_language(self):
+        """按当前语言刷新主界面固定文案与依赖语言的动态标签。"""
+        global _UI_LANG
+        lang = getattr(self, "ui_lang", None) or load_ui_lang()
+        self.ui_lang = lang
+        _UI_LANG = lang
+        # 窗口标题保持产品名
+        self.title("Controller Bagbuddy")
+        pairs = [
+            ("btn_open", "open_screenshot"),
+            ("btn_paste", "paste_screenshot"),
+            ("btn_lang", "lang_btn"),
+            ("lbl_layouts_title", "layouts_title"),
+            ("btn_add_layout", "add_layout"),
+            ("btn_dup_layout", "copy"),
+            ("btn_del_layout", "delete"),
+            ("lbl_layout_name", "layout_name"),
+            ("lbl_regions_title", "regions_title"),
+            ("btn_add_region", "add_region"),
+            ("btn_dup_region", "copy"),
+            ("btn_del_region", "delete"),
+            ("lbl_region_name", "region_name"),
+            ("lbl_cols", "cols"),
+            ("lbl_rows", "rows"),
+            ("lbl_cell_wh", "cell_wh_auto"),
+            ("lbl_cell_w", "width"),
+            ("lbl_cell_h", "height"),
+            ("btn_origin_center", "cell_center"),
+            ("btn_origin_tl", "topleft"),
+            ("btn_resize_cells", "resize_from_cells"),
+            ("chk_cross_region", "cross_region"),
+            ("btn_save", "save"),
+            ("btn_copy_json", "copy_json"),
+            ("btn_export", "export"),
+            ("lbl_config_title", "config_title"),
+            ("lbl_config_current", "current"),
+            ("btn_switch_cfg", "switch_config"),
+            ("btn_new_cfg", "new"),
+            ("btn_save_as_cfg", "save_as"),
+            ("btn_del_cfg", "delete"),
+            ("lbl_activate", "activate"),
+            ("chk_border", "draw_border"),
+            ("lbl_resolution", "resolution"),
+            ("lbl_res_w", "width"),
+            ("lbl_res_h", "height"),
+            ("btn_use_img_res", "use_image_res"),
+            ("lbl_hotkeys_title", "hotkeys_title"),
+        ]
+        for attr, key in pairs:
+            w = getattr(self, attr, None)
+            if w is not None:
+                try:
+                    w.config(text=t(key))
+                except Exception:
+                    pass
+        # 动态 StringVar
+        self._refresh_lock_button()
+        if self.overlay_on:
+            self.overlay_var.set(t("overlay_on") + self._hk_suffix("toggle_overlay"))
+        else:
+            self.overlay_var.set(t("overlay_off") + self._hk_suffix("toggle_overlay"))
+        if self.mouse_on:
+            self.mouse_var.set(t("mouse_on"))
+        else:
+            self.mouse_var.set(t("mouse_off"))
+        self._refresh_active_button()
+        # 仅在仍是默认加载提示时替换，避免冲掉其它状态
+        cur = self.status_var.get()
+        if cur in (
+            "请加载一张背包截图",
+            "Load a backpack screenshot",
+            t("status_load"),
+            t("lang_switched"),
+        ) or cur.startswith("界面语言") or cur.startswith("UI language"):
+            pass  # 由调用方或 toggle 设置
+        self._build_hotkey_bar()
+        self._refresh_layout_list()
+        self._refresh_region_list()
+
     def _on_preset_selected(self, event=None):
         name = self.res_preset_var.get()
         for n, w, h in RES_PRESETS:
@@ -2160,7 +2719,7 @@ class App(Tk):
                 self._ui_lock = False
                 self._sync_from_ui()
                 self._redraw()
-                self.status_var.set(f"分辨率已设为 {w}×{h}")
+                self.status_var.set(t("res_set", w=w, h=h))
                 return
 
     def _sync_preset_label(self, *_):
@@ -2177,7 +2736,7 @@ class App(Tk):
 
     def use_image_resolution(self):
         if self.image is None:
-            messagebox.showinfo("提示", "请先加载截图。")
+            messagebox.showinfo(t("tip"), t("need_screenshot"))
             return
         w, h = self.image.size
         self._ui_lock = True
@@ -2214,25 +2773,26 @@ class App(Tk):
             w.destroy()
         self.hk_labels = {}
         items = [
-            ("toggle_mouse", "激活"),
-            ("toggle_overlay", "辅助线"),
-            ("toggle_global_lock", "全局锁"),
-            ("prev_region", "上个区域"),
-            ("next_region", "下个区域"),
-            ("cell_left", "朝左一格"),
-            ("cell_right", "朝右一格"),
-            ("cell_up", "朝上一格"),
-            ("cell_down", "朝下一格"),
-            ("prev_layout", "上一界面"),
-            ("next_layout", "下一界面"),
+            "toggle_mouse",
+            "toggle_overlay",
+            "toggle_global_lock",
+            "prev_region",
+            "next_region",
+            "cell_left",
+            "cell_right",
+            "cell_up",
+            "cell_down",
+            "prev_layout",
+            "next_layout",
         ]
         # 固定两行：11 项 → 每行最多 6 个
         per_row = 6
-        for i, (act, title) in enumerate(items):
+        for i, act in enumerate(items):
+            title = t("hk_" + act)
             cell = Frame(self.hk_bar)
             cell.grid(row=i // per_row, column=i % per_row, padx=4, pady=2, sticky="w")
             Label(cell, text=title, font=("Segoe UI", 9)).pack(side=LEFT)
-            txt = pretty_key(self.hotkeys.get(act, "")) or "未设"
+            txt = pretty_key(self.hotkeys.get(act, "")) or t("unset")
             lb = Button(
                 cell, text=txt, width=5, font=("Segoe UI", 9),
                 command=lambda a=act: self.begin_capture(("hotkey", a)),
@@ -2252,18 +2812,18 @@ class App(Tk):
         self._stop_capture_flash()
         self._capturing = token
         kind, ref = token
-        name = ref if kind == "layout" else dict(HOTKEY_ACTIONS).get(ref, ref)
+        name = ref if kind == "layout" else hotkey_action_title(ref)
         if kind == "layout" and 0 <= ref < len(self.layouts):
             name = self.layouts[ref].name
-        self.capture_hint_var.set(f"正在设置「{name}」：请按键    Esc / 右键 取消")
+        self.capture_hint_var.set(t("capture_hint", name=name))
         if hasattr(self, "capture_hint"):
             self.capture_hint.config(fg="#e65100", bg="#fff3e0")
         btn = self._capture_btn(token)
         if btn:
-            btn.config(text="按键…", bg="#ff9800", fg="white", activebackground="#fb8c00")
+            btn.config(text=t("press_key"), bg="#ff9800", fg="white", activebackground="#fb8c00")
         self._flash_on = True
         self._flash_capture()
-        self.status_var.set("请按要绑定的键（Esc 或右键取消，Backspace 清空）")
+        self.status_var.set(t("capture_status"))
         self.focus_force()
 
     def _flash_capture(self):
@@ -2324,7 +2884,7 @@ class App(Tk):
 
     def _on_cross_region_check(self):
         self.cross_region = bool(self.cross_region_var.get())
-        self.status_var.set("跨区域移动：开" if self.cross_region else "跨区域移动：关")
+        self.status_var.set(t("cross_on") if self.cross_region else t("cross_off"))
 
     def _on_capture_key(self, event):
         if not self._capturing:
@@ -2493,7 +3053,7 @@ class App(Tk):
         if self.mouse_on:
             return
         if self.region_is_locked():
-            self.status_var.set("区域已锁定，解锁后才能调整大小")
+            self.status_var.set(t("region_locked_resize"))
             return
         r = self.R()
         r.rx1 += dx
@@ -2507,7 +3067,7 @@ class App(Tk):
         if self.mouse_on:
             return
         if self.region_is_locked():
-            self.status_var.set("区域已锁定，解锁后才能调整大小")
+            self.status_var.set(t("region_locked_resize"))
             return
         r = self.R()
         r.rx1 -= amount
@@ -2540,12 +3100,12 @@ class App(Tk):
             return
         lay = self.layouts[idx]
         if not getattr(lay, "feature_points", None):
-            self.status_var.set(f"「{lay.name}」尚未设置特征点")
+            self.status_var.set(t("fp_none", name=lay.name))
             return
         lay.feature_points = []
         self._refresh_layout_list()
         self.save_layouts_file()
-        self.status_var.set(f"已清空「{lay.name}」特征点，自动切界面已关闭")
+        self.status_var.set(t("fp_cleared_status", name=lay.name))
         return "break"
 
     def _draw_feature_markers(self, points):
@@ -2602,7 +3162,7 @@ class App(Tk):
         self.cur = 0
         self._show_layout()
         self._redraw()
-        self.status_var.set(f"当前界面：{self.L().name}  键 {pretty_key(self.L().switch_key)}")
+        self.status_var.set(t("layout_cur", name=self.L().name, key=pretty_key(self.L().switch_key)))
         self.refresh_overlay()
 
     def _on_layout_right_click(self, event):
@@ -2615,7 +3175,7 @@ class App(Tk):
         if idx != self.layout_i:
             self.switch_layout(idx)
         menu = Menu(self, tearoff=0)
-        menu.add_command(label="重命名界面", command=lambda: self.rename_layout(idx))
+        menu.add_command(label=t("menu_rename_layout"), command=lambda: self.rename_layout(idx))
         try:
             menu.tk_popup(event.x_root, event.y_root)
         finally:
@@ -2628,12 +3188,12 @@ class App(Tk):
             return
         self._sync_from_ui()
         old = self.layouts[idx].name
-        name = simpledialog.askstring("重命名界面", "新名称：", initialvalue=old, parent=self)
+        name = simpledialog.askstring(t("rename_layout"), t("rename_prompt"), initialvalue=old, parent=self)
         if name is None:
             return
         name = name.strip()
         if not name:
-            messagebox.showinfo("提示", "名称不能为空。")
+            messagebox.showinfo(t("tip"), t("name_empty"))
             return
         self.layouts[idx].name = name
         if idx == self.layout_i:
@@ -2646,7 +3206,7 @@ class App(Tk):
         if self.switcher and self.switcher.winfo_exists():
             self.switcher.refresh()
         self.save_layouts_file()
-        self.status_var.set(f"已重命名为「{name}」")
+        self.status_var.set(t("renamed", name=name))
         self._redraw()
 
     def _on_layout_list(self, event):
@@ -2687,7 +3247,7 @@ class App(Tk):
 
     def del_layout(self):
         if len(self.layouts) <= 1:
-            messagebox.showinfo("提示", "至少保留一个界面。")
+            messagebox.showinfo(t("tip"), t("keep_one_layout"))
             return
         del self.layouts[self.layout_i]
         self.layout_i = min(self.layout_i, len(self.layouts) - 1)
@@ -2740,7 +3300,7 @@ class App(Tk):
     def _del_region_at(self, idx):
         regs = self.regions()
         if len(regs) <= 1:
-            messagebox.showinfo("提示", "每个界面至少保留一个大区。")
+            messagebox.showinfo(t("tip"), t("keep_one_region"))
             return
         if idx < 0 or idx >= len(regs):
             return
@@ -2783,7 +3343,7 @@ class App(Tk):
             with Image.open(path) as im:
                 img = im.convert("RGB")
         except Exception as e:
-            messagebox.showerror("打开截图", f"无法读取图片：\n{e}")
+            messagebox.showerror(t("open_title"), t("open_fail", e=e))
             return
         self._set_image(img)
         self.status_var.set(os.path.basename(path))
@@ -2791,18 +3351,18 @@ class App(Tk):
     def paste_clipboard(self):
         img = ImageGrab.grabclipboard()
         if img is None:
-            messagebox.showinfo("剪贴板", "剪贴板里没有图片。")
+            messagebox.showinfo(t("clip_title"), t("clip_empty"))
             return
         if not isinstance(img, Image.Image):
             try:
                 img = Image.open(img).convert("RGB")
             except Exception:
-                messagebox.showinfo("剪贴板", "无法读取剪贴板图片。")
+                messagebox.showinfo(t("clip_title"), t("clip_fail"))
                 return
         else:
             img = img.convert("RGB")
         self._set_image(img)
-        self.status_var.set("来自剪贴板")
+        self.status_var.set(t("from_clipboard"))
 
     def _set_image(self, img):
         # 必须失效 PhotoImage 缓存：同尺寸二次载入时否则仍显示旧图
@@ -2833,14 +3393,14 @@ class App(Tk):
 
     def resize_region_from_cells(self):
         if self.region_is_locked():
-            messagebox.showinfo("提示", "区域已锁定，解锁后才能调整大小。")
+            messagebox.showinfo(t("tip"), t("region_locked_resize_dot"))
             return
         self._sync_from_ui()
         r = self.R()
         cw = _to_float(r.cell_w)
         ch = _to_float(r.cell_h)
         if cw is None or ch is None:
-            messagebox.showinfo("提示", "请先填写当前大区的格子宽和高。")
+            messagebox.showinfo(t("tip"), t("need_cell_wh"))
             return
         r.rx2 = r.rx1 + cw * r.cols
         r.ry2 = r.ry1 + ch * r.rows
@@ -2932,19 +3492,19 @@ class App(Tk):
             if w < 8 or h < 8:
                 if old is not None:
                     r.set_rect(*old)
-                self.status_var.set("框格太小，已取消")
+                self.status_var.set(t("box_too_small"))
             else:
                 ok = messagebox.askyesno(
-                    "确认框格",
-                    f"确认使用拖拽生成的框格吗？\n大小约 {w:.0f}×{h:.0f}",
+                    t("confirm_box"),
+                    t("confirm_box_msg", w=w, h=h),
                     parent=self,
                 )
                 if not ok:
                     if old is not None:
                         r.set_rect(*old)
-                    self.status_var.set("已取消本次拖拽框格")
+                    self.status_var.set(t("box_cancel"))
                 else:
-                    self.status_var.set(f"已确认框格 {w:.0f}×{h:.0f}")
+                    self.status_var.set(t("box_ok", w=w, h=h))
                     confirmed = True
         self._normalize_rect(r)
         # 框选确认或拖拽改大小结束后按区域重算格子宽高
@@ -2980,30 +3540,30 @@ class App(Tk):
             if self.overlay is None:
                 self.overlay = ScreenOverlay(self)
             self.overlay.show()
-            self.overlay_var.set("屏幕辅助线：开启" + self._hk_suffix("toggle_overlay"))
+            self.overlay_var.set(t("overlay_on") + self._hk_suffix("toggle_overlay"))
             if hasattr(self, "btn_overlay"):
                 self.btn_overlay.config(bg="#1565c0")
         else:
             self.overlay_on = False
             if self.overlay:
                 self.overlay.hide()
-            self.overlay_var.set("屏幕辅助线：关闭" + self._hk_suffix("toggle_overlay"))
+            self.overlay_var.set(t("overlay_off") + self._hk_suffix("toggle_overlay"))
             if hasattr(self, "btn_overlay"):
                 self.btn_overlay.config(bg="#444")
 
     def toggle_overlay(self):
         self.set_overlay(not self.overlay_on)
-        self.status_var.set("屏幕辅助线已开启" if self.overlay_on else "屏幕辅助线已关闭")
+        self.status_var.set(t("overlay_status_on") if self.overlay_on else t("overlay_status_off"))
 
     def _refresh_active_ui(self):
         on = self.mouse_on
         extra = self._hk_suffix("toggle_mouse")
         if hasattr(self, "btn_active"):
             if on:
-                self.active_var.set(f"●  已激活{extra}")
+                self.active_var.set(f"{t('active_on')}{extra}")
                 self.btn_active.config(bg="#2e7d32", activebackground="#1b5e20", fg="white")
             else:
-                self.active_var.set(f"●  未激活{extra}")
+                self.active_var.set(f"{t('active_off')}{extra}")
                 self.btn_active.config(bg="#616161", activebackground="#757575", fg="white")
 
     # ----- 激活移鼠 -----
@@ -3017,7 +3577,7 @@ class App(Tk):
             self._stop_mouse()
             if self.draw_border_var.get():
                 self.set_overlay(False)
-            self.status_var.set("已关闭")
+            self.status_var.set(t("closed"))
         else:
             self.global_lock = True
             self._refresh_lock_button()
@@ -3025,9 +3585,9 @@ class App(Tk):
             self._start_mouse()
             if self.draw_border_var.get():
                 self.set_overlay(True)
-                self.status_var.set(f"已激活「{self.L().name}」，并绘制边框")
+                self.status_var.set(t("activated_border", name=self.L().name))
             else:
-                self.status_var.set(f"已激活「{self.L().name}」")
+                self.status_var.set(t("activated", name=self.L().name))
         self._refresh_active_ui()
 
     def _on_border_check(self):
@@ -3052,13 +3612,13 @@ class App(Tk):
 
     def _start_mouse(self):
         if not IS_WIN:
-            messagebox.showinfo("提示", "全局移鼠热键仅在 Windows 下可用。")
+            messagebox.showinfo(t("tip"), t("mouse_win_only"))
         self._sync_from_ui()
         self.mouse_on = True
-        self.mouse_var.set("移鼠：开启")
+        self.mouse_var.set(t("mouse_on"))
         if hasattr(self, "btn_mouse"):
             self.btn_mouse.config(bg="#c62828")
-        self.status_var.set("移鼠已开启")
+        self.status_var.set(t("mouse_status_on"))
         self._refresh_active_ui()
         self._set_process_priority(True)
         self._redraw()
@@ -3067,10 +3627,10 @@ class App(Tk):
 
     def _stop_mouse(self):
         self.mouse_on = False
-        self.mouse_var.set("移鼠：关闭")
+        self.mouse_var.set(t("mouse_off"))
         if hasattr(self, "btn_mouse"):
             self.btn_mouse.config(bg="#444")
-        self.status_var.set("移鼠已关闭")
+        self.status_var.set(t("mouse_status_off"))
         self._refresh_active_ui()
         self._set_process_priority(False)
         self._redraw()
@@ -3197,7 +3757,7 @@ class App(Tk):
             return
         name = self.layouts[idx].name
         self.switch_layout(idx)
-        self.status_var.set(f"特征点匹配 → 已切换到「{name}」")
+        self.status_var.set(t("fp_match", name=name))
 
     def _feature_detect_loop(self):
         while not self._poll_stop.is_set():
@@ -3905,7 +4465,7 @@ class App(Tk):
             pass
         self._write_active_config_name(self.active_config)
         self._refresh_config_ui()
-        self.status_var.set(f"已保存配置 {self.active_config}.json")
+        self.status_var.set(t("saved_config", name=self.active_config))
 
     def _load_layouts_file(self):
         # 兼容旧调用：转调多配置加载
@@ -3926,12 +4486,12 @@ class App(Tk):
                 return
             target = self._safe_config_name(name)
         if target not in names:
-            messagebox.showinfo("提示", f"配置「{target}」不存在。")
+            messagebox.showinfo(t("tip"), t("cfg_missing", name=target))
             self.config_combo_var.set(cur)
             return
         if target == cur:
             return
-        if not messagebox.askyesno("切换配置", f"切换前是否保存当前配置「{cur}」？\n选「否」则丢弃未保存改动。", parent=self):
+        if not messagebox.askyesno(t("cfg_switch_title"), t("cfg_switch_save", name=cur), parent=self):
             pass
         else:
             try:
@@ -3944,13 +4504,13 @@ class App(Tk):
         name = self._safe_config_name(name)
         path = self._config_path(name)
         if not os.path.isfile(path):
-            messagebox.showinfo("提示", f"找不到配置文件 {name}.json")
+            messagebox.showinfo(t("tip"), t("cfg_file_missing", name=name))
             return
         try:
             with open(path, "r", encoding="utf-8") as f:
                 data = json.load(f)
         except Exception as e:
-            messagebox.showerror("错误", f"读取配置失败：{e}")
+            messagebox.showerror(t("error"), t("cfg_read_fail", e=e))
             return
         self.active_config = name
         self._apply_config_data(data if isinstance(data, dict) else {})
@@ -3960,18 +4520,18 @@ class App(Tk):
         self._show_layout()
         self._redraw()
         self._refresh_config_ui()
-        self.status_var.set(f"已切换到配置 {name}")
+        self.status_var.set(t("cfg_switched", name=name))
 
     def new_config(self):
-        name = simpledialog.askstring("新建配置", "新配置名称：", parent=self)
+        name = simpledialog.askstring(t("cfg_new_title"), t("cfg_new_name_prompt"), parent=self)
         if name is None:
             return
         name = self._safe_config_name(name)
         path = self._config_path(name)
         if os.path.isfile(path):
-            messagebox.showinfo("提示", f"配置「{name}」已存在。")
+            messagebox.showinfo(t("tip"), t("cfg_exists", name=name))
             return
-        if messagebox.askyesno("新建配置", f"是否先保存当前配置「{self.active_config}」？", parent=self):
+        if messagebox.askyesno(t("cfg_new_title"), t("cfg_new_save", name=self.active_config), parent=self):
             try:
                 self.save_layouts_file()
             except Exception:
@@ -3991,42 +4551,42 @@ class App(Tk):
             with open(path, "w", encoding="utf-8") as f:
                 json.dump(payload, f, ensure_ascii=False, indent=2)
         except Exception as e:
-            messagebox.showerror("错误", f"创建失败：{e}")
+            messagebox.showerror(t("error"), t("cfg_create_fail", e=e))
             return
         self._switch_to_config(name)
 
     def save_config_as(self):
-        name = simpledialog.askstring("另存为", "新配置名称：", initialvalue=self.active_config, parent=self)
+        name = simpledialog.askstring(t("cfg_save_as_title"), t("cfg_new_name_prompt"), initialvalue=self.active_config, parent=self)
         if name is None:
             return
         name = self._safe_config_name(name)
         path = self._config_path(name)
         if os.path.isfile(path) and name != self.active_config:
-            if not messagebox.askyesno("另存为", f"配置「{name}」已存在，覆盖？", parent=self):
+            if not messagebox.askyesno(t("cfg_save_as_title"), t("cfg_overwrite", name=name), parent=self):
                 return
         self.active_config = name
         try:
             self.save_layouts_file()
         except Exception as e:
-            messagebox.showerror("错误", f"保存失败：{e}")
+            messagebox.showerror(t("error"), t("cfg_save_fail", e=e))
             return
         self._refresh_config_ui()
-        self.status_var.set(f"已另存为 {name}.json")
+        self.status_var.set(t("cfg_saved_as", name=name))
 
     def delete_config(self):
         names = self._list_config_names()
         if len(names) <= 1:
-            messagebox.showinfo("提示", "不能删除最后一个配置。")
+            messagebox.showinfo(t("tip"), t("cfg_del_last"))
             return
         name = self.active_config
-        if not messagebox.askyesno("删除配置", f"确定删除配置「{name}」？此操作不可恢复。", parent=self):
+        if not messagebox.askyesno(t("cfg_del_title"), t("cfg_del_confirm", name=name), parent=self):
             return
         path = self._config_path(name)
         try:
             if os.path.isfile(path):
                 os.remove(path)
         except Exception as e:
-            messagebox.showerror("错误", f"删除失败：{e}")
+            messagebox.showerror(t("error"), t("cfg_del_fail", e=e))
             return
         remain = self._list_config_names()
         self._switch_to_config(remain[0])
@@ -4035,7 +4595,7 @@ class App(Tk):
         payload = self._config_payload()
         self.clipboard_clear()
         self.clipboard_append(json.dumps(payload, ensure_ascii=False, indent=2))
-        self.status_var.set("已复制")
+        self.status_var.set(t("copied"))
 
     def export_json(self):
         path = filedialog.asksaveasfilename(
@@ -4046,7 +4606,7 @@ class App(Tk):
             return
         with open(path, "w", encoding="utf-8") as f:
             json.dump(self._config_payload(), f, ensure_ascii=False, indent=2)
-        self.status_var.set(f"已保存 {os.path.basename(path)}")
+        self.status_var.set(t("saved_file", name=os.path.basename(path)))
 
     # ----- 退出 -----
     def _on_close(self):

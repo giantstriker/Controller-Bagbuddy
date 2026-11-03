@@ -22,6 +22,7 @@ Screen position is `image pixel × (target resolution / image size)`, with the s
 - [x] Hotkey mouse glide: a short multi-step slide, then a position correction
 - [x] Full-screen grid overlay, green for the active region, white for the others, click-through
 - [x] Named profiles so each game keeps its own file
+- [x] Chinese / English UI toggle; language saved in `ui_lang.json` (default Chinese)
 
 ## Requirements
 
@@ -142,7 +143,7 @@ The overlay is a topmost full-screen grid: active region `#00e676`, others white
 
 ### Left panel
 
-- **Open screenshot** / **Paste screenshot**
+- **Open screenshot** / **Paste screenshot**. **中文 / English** beside them switches the UI language
 - **Global lock**. Mouse activation checks this, and it stays checked after you deactivate
 - **Screen overlay**. Manual toggle for the full-screen grid
 - **Layouts**: list, add, copy, delete, name. Each row has a switch-key chip and **色**
@@ -169,6 +170,14 @@ Left to right:
 - **Hotkeys**: two rows of chips. Click the key, then press it
 
 Resolution is stored on the current layout and changes when you switch layouts.
+
+## UI language (中 / EN)
+
+- Next to **Open screenshot** / **Paste screenshot**, click **中文 / English** to toggle Chinese and English labels.
+- The change refreshes buttons, lists, the hotkey bar, dialogs, and other visible text immediately. The window title stays **Controller Bagbuddy**.
+- The choice is stored as `ui_lang.json` in the app directory (same folder as the EXE / `code.py`), e.g. `{"lang": "zh"}` or `{"lang": "en"}`.
+- **Default is Chinese (`zh`)**: missing or invalid file → start in Chinese.
+- Profiles, hotkey bindings, and layout data are unaffected.
 
 ## Configuration
 
@@ -280,6 +289,7 @@ The EXE, `*_更新.exe`, `build_tmp/`, and `*.spec` are gitignored. Leave them o
 | `configs/default.json` | Sample with several regions, links, and probes |
 | `configs/2.json` | Sample with a single region |
 | `active_config.json` | Active profile name |
+| `ui_lang.json` | UI language (`zh` / `en`); default Chinese. Created next to the EXE / `code.py` |
 | `README.md` | This file. GitHub renders it on the repository home |
 | `README.zh-CN.md` | Chinese documentation |
 | `.gitignore` | Cache, virtualenvs, and build output |
