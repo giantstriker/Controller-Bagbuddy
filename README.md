@@ -2,6 +2,8 @@
 
 > 中文说明：[README.zh-CN.md](README.zh-CN.md)
 
+<img src="bagbuddy-icon-256.png" alt="Controller Bagbuddy" width="128">
+
 Map inventory cells from a screenshot, then glide the cursor onto them with hotkeys. Windows / Python.
 
 ## Overview
@@ -273,6 +275,8 @@ The EXE, `*_更新.exe`, `build_tmp/`, and `*.spec` are gitignored. Leave them o
 |------|------|
 | `code.py` | Source |
 | `backpack_tool.ico` | Window and EXE icon |
+| `bagbuddy-icon-256.png` | Logo used in this README |
+| `bagbuddy-icon-512.png` | Larger logo |
 | `configs/default.json` | Sample with several regions, links, and probes |
 | `configs/2.json` | Sample with a single region |
 | `active_config.json` | Active profile name |

@@ -2,6 +2,8 @@
 
 [English](README.md)
 
+<img src="bagbuddy-icon-256.png" alt="Controller Bagbuddy" width="128">
+
 根据截图划分背包格子，热键极快滑动鼠标定位。Windows / Python。
 
 ## 项目简介
@@ -273,6 +275,8 @@ EXE、`*_更新.exe`、`build_tmp/`、`*.spec` 都在 `.gitignore` 里，不要�
 |------|------|
 | `code.py` | 源码 |
 | `backpack_tool.ico` | 窗口和 EXE 图标 |
+| `bagbuddy-icon-256.png` | 文档顶部用的标志 |
+| `bagbuddy-icon-512.png` | 更大一档的标志 |
 | `configs/default.json` | 样例：多区、链接、特征点 |
 | `configs/2.json` | 样例：单个大区 |
 | `active_config.json` | 当前配置名 |
