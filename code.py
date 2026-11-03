@@ -2695,7 +2695,7 @@ class App(Tk):
             self.mouse_var.set(t("mouse_on"))
         else:
             self.mouse_var.set(t("mouse_off"))
-        self._refresh_active_button()
+        self._refresh_active_ui()
         # 仅在仍是默认加载提示时替换，避免冲掉其它状态
         cur = self.status_var.get()
         if cur in (
